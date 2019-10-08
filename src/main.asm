@@ -101,24 +101,24 @@ Start:
 
 moveSprite::
     ;check if we should move
-    .move_Check
-        ld hl, $C100 ; we are just using this register for giggles.
-        inc [hl]   ; 
-        ld a, [hl] ; 
-        and %00001111 ;; should toggle every other inc
-        cp  %00001111 ;; after we mask it with the and, we compare to set the Zero flag appropriately
-        ret nz
+.move_check
+    ld hl, $C100 ; we are just using this register for giggles.
+    inc [hl]   ; 
+    ld a, [hl]
+    and %00000111 ;; should toggle every other inc
+    cp  %00000111 ;; after we mask it with the and, we compare to set the Zero flag appropriately
+    ret nz
 
-    .move_pixel
-        ld hl, $C000   ; first byte is y,x
-        dec [hl]
-        ld hl, $C004   ; first byte is y,x
-        dec [hl]
-        ld hl, $C008   ; first byte is y,x
-        dec [hl]
-        ld hl, $C00C   ; first byte is y,x
-        dec [hl]
-        ret
+.move_pixel
+    ld hl, $C000   ; first byte is y,x
+    dec [hl]
+    ld hl, $C004   ; first byte is y,x
+    dec [hl]
+    ld hl, $C008   ; first byte is y,x
+    dec [hl]
+    ld hl, $C00C   ; first byte is y,x
+    dec [hl]
+    ret
 
 SECTION "Font", ROM0
     
