@@ -89,36 +89,14 @@ Start:
     ;ld a, $c100
     ;cp $00
 
-    
-    call moveSprite
-
     ;; draw our sprites to OAM
     ld  a, HIGH($c000)
     call hOAMDMA
+
+    ;; grab our new inputs
+    call checkInputs
     
     jr .loop
-
-
-moveSprite::
-    ;check if we should move
-.move_check
-    ld hl, $C100 ; we are just using this register for giggles.
-    inc [hl]   ; 
-    ld a, [hl]
-    and %00000111 ;; should toggle every other inc
-    cp  %00000111 ;; after we mask it with the and, we compare to set the Zero flag appropriately
-    ret nz
-
-.move_pixel
-    ld hl, $C000   ; first byte is y,x
-    dec [hl]
-    ld hl, $C004   ; first byte is y,x
-    dec [hl]
-    ld hl, $C008   ; first byte is y,x
-    dec [hl]
-    ld hl, $C00C   ; first byte is y,x
-    dec [hl]
-    ret
 
 SECTION "Font", ROM0
     
@@ -146,3 +124,33 @@ SECTION "Hello World string", ROM0
 HelloWorldStr:
     db "12345678901234567890", 0
 
+
+
+checkInputs::
+    ld a,%00100000
+    ld [$FF00], a
+    ld a, [$FF00]
+   
+    bit 2, a
+    call z, moveSpriteUp
+    bit 2, a
+    jp z, .lrInputs
+
+    ld a, [$FF00]
+    bit 3, a
+    call z, moveSpriteDown
+    bit 3, a
+
+.lrInputs
+    ld a, [$FF00]
+    bit 1, a
+    call z, moveSpriteLeft
+    bit 1, a
+    ret z
+
+    ld a, [$FF00]
+    bit 0, a
+    call z, moveSpriteRight
+    bit 0, a
+    ret z
+    ret
