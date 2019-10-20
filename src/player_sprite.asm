@@ -1,5 +1,9 @@
 SECTION "Sprite handlers", ROM0
 
+
+;; I think the move check functions need to work differently,
+;; they should probably check the hardware timer, or something similar.
+
 moveSpriteUp::
     ;check if we should move
 .move_check

@@ -1,4 +1,6 @@
 INCLUDE "hardware.inc"
+INCLUDE "gfx/table.asm"
+INCLUDE "gfx/pinball_tiles.asm"
 
 SECTION "Header", ROM0[$100]
     ;our code here
@@ -21,14 +23,14 @@ Start:
    
 .copyFont
     ld hl, $9000 ; vram
-    ld bc, FontTiles
-    ld de, FontTilesEnd - FontTiles
+    ld bc, PinballTiles
+    ld de, $7F0 
     call memcpy; 
 
-.copyString ;  '' this actually loads the tile map!
-    ld hl, $98E4 ; This will print toward the center of the screen. 
-    ld bc, HelloWorldStr
-    ld de, 12  ; 12 bytes. I actaully think HELLO WORLD! is 24 bytes. why does 13 work????
+.copyTableMap ;  '' this actually loads the tile map!
+    ld hl, $9800 ; This will print toward the center of the screen. 
+    ld bc, Table1
+    ld de, 32*32  ; 12 bytes. I actaully think HELLO WORLD! is 24 bytes. why does 13 work????
     call memcpy
 
 .copySprite
@@ -83,18 +85,17 @@ Start:
     call CopyDMARoutine
      
 .loop
+  ;; grab our new inputs
+    call checkInputs
+
+
     ;; going to try to draw my sprite here....
     call waitVBlank ; wait for vblank
-    
-    ;ld a, $c100
-    ;cp $00
-
     ;; draw our sprites to OAM
     ld  a, HIGH($c000)
     call hOAMDMA
 
-    ;; grab our new inputs
-    call checkInputs
+  
     
     jr .loop
 
@@ -103,6 +104,10 @@ SECTION "Font", ROM0
 FontTiles:
 INCBIN "font.chr"
 FontTilesEnd:
+
+;PinballTiles:
+;INCBIN "gfx/pinball_tiles.bin"
+;PinballTilesEnd:
 
 dummySprite:
 INCBIN "gfx/dummy.bin"
@@ -127,30 +132,33 @@ HelloWorldStr:
 
 
 checkInputs::
+    ; this definately has room for improvement...
+    ;set mode to DPAD input
     ld a,%00100000
     ld [$FF00], a
+
     ld a, [$FF00]
-   
     bit 2, a
     call z, moveSpriteUp
-    bit 2, a
-    jp z, .lrInputs
 
     ld a, [$FF00]
     bit 3, a
     call z, moveSpriteDown
-    bit 3, a
 
-.lrInputs
     ld a, [$FF00]
     bit 1, a
     call z, moveSpriteLeft
-    bit 1, a
-    ret z
 
     ld a, [$FF00]
     bit 0, a
     call z, moveSpriteRight
-    bit 0, a
-    ret z
+
+    ; check buttons
+    ld a,%00010000
+    ld [$FF00], a
+
+    ;B Button
+    ld a, [$FF00]
+    bit 1, a
+    call z, swapWindows
     ret
