@@ -1,6 +1,6 @@
 INCLUDE "hardware.inc"
-INCLUDE "gfx/table.asm"
-INCLUDE "gfx/pinball_tiles.asm"
+INCLUDE "gfx/table.z80"
+INCLUDE "gfx/pinball_tiles.z80"
 
 SECTION "Header", ROM0[$100]
     ;our code here

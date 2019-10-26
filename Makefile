@@ -8,9 +8,9 @@ PROJECT_NAME	?=	hello-world
 OUTPUT			:=	$(PROJECT_NAME)
 SRC_DIR			:=	src
 INC_DIR			:=	include/
-SRC_Z80			:=	$(call rwildcard, $(SRC_DIR)/, *.asm)
-OBJ_FILES		:=	$(addprefix $(BUILD_DIR)/obj/, $(SRC_Z80:src/%.asm=%.o))
-OBJ_DIRS 		:=	$(sort $(addprefix $(BUILD_DIR)/obj/, $(dir $(SRC_Z80:src/%.asm=%.o))))
+SRC_Z80			:=	$(call rwildcard, $(SRC_DIR)/, *.z80)
+OBJ_FILES		:=	$(addprefix $(BUILD_DIR)/obj/, $(SRC_Z80:src/%.z80=%.o))
+OBJ_DIRS 		:=	$(sort $(addprefix $(BUILD_DIR)/obj/, $(dir $(SRC_Z80:src/%.z80=%.o))))
 ASM_FLAGS		:=	-i $(INC_DIR)
 
 .PHONY: all clean
@@ -23,7 +23,7 @@ fix: build
 build: $(OBJ_FILES)
 	$(LINKER) -o $(OUTPUT).gb $(OBJ_FILES)
 	
-$(BUILD_DIR)/obj/%.o : src/%.asm | $(OBJ_DIRS)
+$(BUILD_DIR)/obj/%.o : src/%.z80 | $(OBJ_DIRS)
 	$(ASM) $(ASM_FLAGS) -o $@ $<
 
 $(OBJ_DIRS): 
