@@ -6,7 +6,7 @@ swapWindows::
     cp $00
     jr nz, .toTop 
 .toBot
-    ld a, 114
+    ld a, 112
     ld [rSCY], a
     jr .windowSwapRet
 .toTop

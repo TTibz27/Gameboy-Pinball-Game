@@ -1,0 +1,62 @@
+INCLUDE "src/memory/hram.z80"
+
+SECTION "joypadHandlers", ROM0
+
+checkRawJoypadInput::
+
+    ; this polls the hardware for inputs, and stores it in hram addresses for speed improvement. 
+    ;; bits are 7) down, 6)up, 5)left, 4) right, 3) start, 2) select, 1) B button , 0) A button
+
+    ; check dpad
+    ld a,%00100000
+    ld [$FF00], a
+    ; we read a few times to allow the signal to stabilize 
+    ld a, [$FF00]
+    ld a, [$FF00]
+    ld a, [$FF00]
+    ld a, [$FF00]
+    ld a, [$FF00]
+    ld a, [$FF00]
+    cpl ; we compliement this so now 1 means pressed instead of 0
+    and %00001111; clean inputs to only look for last 4 bits aka buttons
+    swap a; we move the DPAD buttons to the high nybble
+    ld b, a
+
+    ;check buttons
+    ld a,%00010000
+    ld [$FF00], a
+    rept 10;
+	ld a, [$FF00]
+	endr
+    cpl
+    and %00001111
+    or b ; set bottom nybble
+
+    ld [hJoypadInput], a
+
+    ; release keys
+    ld a,%00000000
+    ld [$FF00], a
+
+
+
+    ld a, [hJoypadInput]
+    ld b, a
+    ld a, [hJoypadLast]
+    ld e, a
+    xor b;  compares last with current, gets what is different between last and now 
+    ld d, a 
+    and e; ; different keys && last keys = released keys
+    ld [hJoypadReleased], a
+    ld a, d
+    and b ; gets pressed
+    ld  [hJoypadPressed], a
+    ld a,b ; grab current input
+    ld [hJoypadLast],a
+
+    ;; if we ever want a routine to ignore/override all joypad inputs, we can put that here.
+    ;; POKEMON does that...
+
+	ld [hJoypadHeld], a ; move last to held, held is there in case we want to filter out inputs at some point.
+
+    ret

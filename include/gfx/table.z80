@@ -18,7 +18,7 @@ Table1Width  EQU 32
 Table1Height EQU 32
 Table1Bank   EQU 0
 
- SECTION "ROM", HOME
+ SECTION "Table", ROMX
 
 Table1::
 Table1PLN0::

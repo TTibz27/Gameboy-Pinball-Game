@@ -1,6 +1,8 @@
 INCLUDE "hardware.inc"
+INCLUDE "src/memory/hram.z80"
 INCLUDE "gfx/table.z80"
 INCLUDE "gfx/pinball_tiles.z80"
+
 
 SECTION "Header", ROM0[$100]
     ;our code here
@@ -21,7 +23,7 @@ Start:
     xor a ; ld a, 0 ; We only need to reset a value with bit 7 reset, but 0 does the job
     ld [rLCDC], a ; We will have to write to LCDC again later, so it's not a bother, really.
    
-.copyFont
+.copyTiles
     ld hl, $9000 ; vram
     ld bc, PinballTiles
     ld de, $7F0 
@@ -33,10 +35,10 @@ Start:
     ld de, 32*32  ; 12 bytes. I actaully think HELLO WORLD! is 24 bytes. why does 13 work????
     call memcpy
 
-.copySprite
+.copySprites
     ld hl, $8010
-    ld bc, dummySprite
-    ld de, dummySpriteEnd - dummySprite
+    ld bc, PinballTiles
+    ld de,  $01FF 
     call memcpy
 
     ; blank A0 bytes in WRAM to use for OAM, that why there 
@@ -86,7 +88,8 @@ Start:
      
 .loop
   ;; grab our new inputs
-    call checkInputs
+    call checkRawJoypadInput
+    call handleCurrentInputs
 
 
     ;; going to try to draw my sprite here....
@@ -131,34 +134,37 @@ HelloWorldStr:
 
 
 
-checkInputs::
-    ; this definately has room for improvement...
-    ;set mode to DPAD input
-    ld a,%00100000
-    ld [$FF00], a
+handleCurrentInputs::
+   
+    ld a, [hJoypadHeld]
+    cp %00000000 ;; check for nothing
+    ret z
 
-    ld a, [$FF00]
-    bit 2, a
-    call z, moveSpriteUp
+    and %11110000
+    cp %00000000 ;; check for nothing
+    jr z, .checkButtonPresses
 
-    ld a, [$FF00]
-    bit 3, a
-    call z, moveSpriteDown
+    ld a, [hJoypadHeld]
+    bit 7, a
+    call nz, moveSpriteDown
 
-    ld a, [$FF00]
-    bit 1, a
-    call z, moveSpriteLeft
+    ld a, [hJoypadHeld]
+    bit 6, a
+    call nz, moveSpriteUp
 
-    ld a, [$FF00]
-    bit 0, a
-    call z, moveSpriteRight
+    ld a, [hJoypadHeld]
+    bit 5, a
+    call nz, moveSpriteLeft
 
-    ; check buttons
-    ld a,%00010000
-    ld [$FF00], a
+    ld a, [hJoypadHeld]
+    bit 4, a
+    call nz, moveSpriteRight
+
+.checkButtonPresses
+    ld a,[hJoypadPressed]
 
     ;B Button
-    ld a, [$FF00]
     bit 1, a
-    call z, swapWindows
+    call nz, swapWindows
+
     ret

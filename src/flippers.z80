@@ -1,0 +1,25 @@
+SECTION "flippers", ROM0
+
+flipperDownFrame:
+    db $90, $38, $0B, $00  ;y- loc, x - loc, tile #,  flags
+    db $98, $38, $0C, $00  ;bottom left
+    db $90, $40, $0D, $00  ; top mid
+    db $98, $40, $0E, $00  ; bottom mid
+    db $98, $48, $0F, $00  ; bottom right
+endFlipperDownFrame:
+
+fliperMidFrame:
+    db $90, $38, $10, $00  
+    db $90, $40, $11, $00  
+    db $90, $38, $12, $00  
+    db $98, $40, $00, $00  ; unused in mid frame
+    db $98, $48, $00, $00  ; unused
+endFlipperMidFrame:
+
+flipperExtendedFrame:
+    db $90, $38, $13, $00  
+    db $8B, $38, $13, $00  
+    db $90, $40, $11, $00  
+    db $8B, $40, $12, $00
+    db $8B, $48, $11, $00
+endFlipperExtendedFrame:
