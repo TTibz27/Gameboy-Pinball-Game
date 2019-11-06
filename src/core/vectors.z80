@@ -1,6 +1,7 @@
 INCLUDE "hardware.inc"
 
-Section "Timing", ROM0
+
+SECTION "rst30", ROM0[$0030]
 waitVBlank::
 .vblank
     ld a, [rLY]

@@ -1,6 +1,5 @@
 ;we will define the joypad settings in HRAM so that it can be accessed faster by using ldh vs ld
 ;apparently that is par for the course in the GB world.
-
 hJoypadLast     EQU $FFB1
 hJoypadReleased EQU $FFB2
 hJoypadPressed  EQU $FFB3
@@ -8,3 +7,6 @@ hJoypadHeld     EQU $FFB4
 
 hDisableJoypadPolling EQU $FFF9
 hJoypadInput EQU $FFF8
+
+
+hVBlankFlag EQU $FF80

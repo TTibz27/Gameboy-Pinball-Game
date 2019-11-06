@@ -1,5 +1,6 @@
 INCLUDE "hardware.inc"
 INCLUDE "src/memory/hram.z80"
+INCLUDE "src/memory/vector_labels.z80"
 INCLUDE "gfx/table.z80"
 INCLUDE "gfx/pinball_tiles.z80"
 
@@ -8,7 +9,7 @@ SECTION "Header", ROM0[$100]
     ;our code here
 EntryPoint: ;
     di ;disable interupts.... lol
-    jp Start ;
+    jp Start ;  
 REPT $150 - $104
     db 0
 ENDR
@@ -18,7 +19,7 @@ SECTION "Game Init", ROM0
 
 Start:
     ; Turn off the LCD
-    call waitVBlank
+    rst wait_vblank
 
     xor a ; ld a, 0 ; We only need to reset a value with bit 7 reset, but 0 does the job
     ld [rLCDC], a ; We will have to write to LCDC again later, so it's not a bother, really.
@@ -79,21 +80,31 @@ Start:
 
      ; lets try to copy sprite OAM to ram
     ld hl, $C000
-    ld bc, dummyOAM
-    ld de, endDummyOAM -dummyOAM
+    ld bc, pinballOAM
+    ld de, 4 
     call memcpy
 
     ;move DMA subroutine to HRAM
     call CopyDMARoutine
-     
+
+    ;Enable interrupts
+    ;ei 
+    ; mask all interrupts besides VBLANK for now
+   ; ld a, %00000001
+   ; ld hl, $FFFF
+    ld [hl], a
+    ; the interrupt flags are at FF0F, not sure how to 'handle' these.... right now
+
 .loop
   ;; grab our new inputs
     call checkRawJoypadInput
     call handleCurrentInputs
 
+    ; this should be handled in an interrupt, and it sho9uld be called with RST, saves a cycle. 
+    ; that means we need "vectors" at special places in memory. the idea is its a shortcut to that address. yeah.
+    rst wait_vblank ; wait for vblank
 
-    ;; going to try to draw my sprite here....
-    call waitVBlank ; wait for vblank
+
     ;; draw our sprites to OAM
     ld  a, HIGH($c000)
     call hOAMDMA
@@ -117,20 +128,20 @@ INCBIN "gfx/dummy.bin"
 dummySpriteEnd:
 
 
-SECTION "dummy OAM Test", ROM0
-dummyOAM:
-    db $75, $8C, $01, $00  ;y- loc, x - loc, tile #,  flags
-    db $7d, $8C, $02, $00  ;bottom left
-    db $75, $94, $03, $00  ; top right
-    db $7D, $94, $04, $00  ; bottom right
-endDummyOAM:
+; SECTION "dummy OAM Test", ROM0
+; dummyOAM:
+;     db $75, $8C, $01, $00  ;y- loc, x - loc, tile #,  flags
+;  ;;   db $7d, $8C, $02, $00  ;bottom left
+;     db $75, $94, $03, $00  ; top right
+;     db $7D, $94, $04, $00  ; bottom right
+; endDummyOAM:
 
 
 
-SECTION "Hello World string", ROM0
 
-HelloWorldStr:
-    db "12345678901234567890", 0
+SECTION "PinballOAMInit", ROM0
+pinballOAM:
+    db $75, $8C, $01, $00  ;y- loc, x - loc, tile #,  flags , 
 
 
 
