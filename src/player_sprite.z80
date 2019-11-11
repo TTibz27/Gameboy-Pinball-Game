@@ -7,7 +7,7 @@ SECTION "Sprite handlers", ROM0
 moveSpriteUp::
     ;check if we should move
 .move_check
-    ld hl, $C100 ; we are just using this register for giggles.
+    ld hl, $C100 ; we are just using this address for giggles.
     inc [hl]   ; 
     ld a, [hl]
     and %00000111 ;; should toggle every other inc
@@ -17,12 +17,12 @@ moveSpriteUp::
 .move_pixel_up
     ld hl, $C000   ; first byte is y,x
     dec [hl]
-    ld hl, $C004  
-    dec [hl]
-    ld hl, $C008  
-    dec [hl]
-    ld hl, $C00C   
-    dec [hl]
+    ; ld hl, $C004  
+    ; dec [hl]
+    ; ld hl, $C008  
+    ; dec [hl]
+    ; ld hl, $C00C   
+    ; dec [hl]
 ret
 
 moveSpriteDown::
@@ -37,12 +37,12 @@ moveSpriteDown::
 .move_pixel_down
     ld hl, $C000   ; first byte is y,x
     inc [hl]
-    ld hl, $C004  
-    inc [hl]
-    ld hl, $C008  
-    inc [hl]
-    ld hl, $C00C   
-    inc [hl]
+    ; ld hl, $C004  
+    ; inc [hl]
+    ; ld hl, $C008  
+    ; inc [hl]
+    ; ld hl, $C00C   
+    ; inc [hl]
 ret
 
 moveSpriteLeft::
@@ -57,12 +57,12 @@ moveSpriteLeft::
 .move_pixel_left
     ld hl, $C001   ; first byte is y,x
     dec [hl]
-    ld hl, $C005  
-    dec [hl]
-    ld hl, $C009  
-    dec [hl]
-    ld hl, $C00D   
-    dec [hl]
+    ; ld hl, $C005  
+    ; dec [hl]
+    ; ld hl, $C009  
+    ; dec [hl]
+    ; ld hl, $C00D   
+    ; dec [hl]
 ret
 
 moveSpriteRight::
@@ -77,10 +77,10 @@ moveSpriteRight::
 .move_pixel_right
     ld hl, $C001   ; first byte is y,x
     inc [hl]
-    ld hl, $C005  
-    inc [hl]
-    ld hl, $C009  
-    inc [hl]
-    ld hl, $C00D   
-    inc [hl]
+    ; ld hl, $C005  
+    ; inc [hl]
+    ; ld hl, $C009  
+    ; inc [hl]
+    ; ld hl, $C00D   
+    ; inc [hl]
 ret

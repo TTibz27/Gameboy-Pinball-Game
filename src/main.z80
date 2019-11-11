@@ -1,5 +1,6 @@
 INCLUDE "hardware.inc"
 INCLUDE "src/memory/hram.z80"
+INCLUDE "src/memory/wram.z80"
 INCLUDE "src/memory/vector_labels.z80"
 INCLUDE "gfx/table.z80"
 INCLUDE "gfx/pinball_tiles.z80"
@@ -46,28 +47,43 @@ Start:
     ; isnt garbage ram data populated in OAM by default
 .blankGarbageData
     ld b, $00;
-    ld hl, $C000;
-    ld de, $A0;
+    ld hl, wOAMBufferStart;
+    ld de, wOAMBufferEnd - wOAMBufferStart;
     call memfill;
     ; now lets blank that first tile too.
-     ld hl, $8000
-     ld de, $10
-     call memfill
+    ld hl, $8000
+    ld de, $10
+    call memfill
+
+    
+    ; initialze game variables
+    ld hl, wBallsRemaining   
+    ld a, 3
+    ld [hl], a
+
+    ld a, %00000000
+    ldh [hPinballFlags], a
+    ldh [hPinballForceX], a
+    ldh [hPinballForceY], a
 
 
-
- ; Init BG pallete
+    ; Set Stack pointer to low ram
+    ld sp, $e000
+    ; Init BG pallete
     ld a, %11100100
     ld [rBGP], a
 
- ; Set Sprite pallete
+    ; Set Sprite pallete
     ld a, %11100100
     ld [rOBP0],a
 
     ; Set BG scroll to 0 ,0 
     xor a ; ld a, 0
-    ld [rSCY], a
     ld [rSCX], a
+
+
+    ld a, 112
+    ld [rSCY], a
 
     ; Shut sound down
     ld [rNR52], a
@@ -96,9 +112,7 @@ Start:
     ; the interrupt flags are at FF0F, not sure how to 'handle' these.... right now
 
 .loop
-  ;; grab our new inputs
-    call checkRawJoypadInput
-    call handleCurrentInputs
+ 
 
     ; this should be handled in an interrupt, and it sho9uld be called with RST, saves a cycle. 
     ; that means we need "vectors" at special places in memory. the idea is its a shortcut to that address. yeah.
@@ -109,6 +123,14 @@ Start:
     ld  a, HIGH($c000)
     call hOAMDMA
 
+
+    ;; grab our new inputs
+    call checkRawJoypadInput
+    call handleCurrentInputs
+
+    ;; update gamestate
+    call  checkPinballUpdate
+.endPinball
   
     
     jr .loop
@@ -141,7 +163,7 @@ dummySpriteEnd:
 
 SECTION "PinballOAMInit", ROM0
 pinballOAM:
-    db $75, $8C, $01, $00  ;y- loc, x - loc, tile #,  flags , 
+    db $30, $30, $01, $00  ;y- loc, x - loc, tile #,  flags , 
 
 
 

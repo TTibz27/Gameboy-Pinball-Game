@@ -5,8 +5,21 @@ hJoypadReleased EQU $FFB2
 hJoypadPressed  EQU $FFB3
 hJoypadHeld     EQU $FFB4
 
-hDisableJoypadPolling EQU $FFF9
-hJoypadInput EQU $FFF8
+
+hJoypadInput EQU $FFB5
+hDisableJoypadPolling EQU $FFB6
 
 
 hVBlankFlag EQU $FF80
+
+; 1- true | 0 - false
+; 7) in plunger | 6) Locked in slot  5) on ramp 4) in play
+; 3)Force X Sign (+/-) 1- negative | 2) Force Y Sign |  1)forceX Carry Bit | 0) forceY carry
+hPinballFlags  EQU $FFA0
+hPinballForceX EQU $FFA1
+hPinballForceY EQU $FFA2
+hPinballPosX   EQU $FFA3
+hPinballPosY   EQU $FFA4
+
+; BIT 7: 1- top, 0 -bottom
+hTableFlags    EQU $FFB0
