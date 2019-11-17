@@ -11,7 +11,7 @@ swapWindows::
     ld [rSCY], a
     ldh a, [hTableFlags]
     ;set to zero
-    res 7,a
+    res 0,a
     ldh [hTableFlags], a
     ret
 .toTop
@@ -19,6 +19,6 @@ swapWindows::
     ld [rSCY], a
     ldh a, [hTableFlags]
     ;set to one
-    set 7,a
+    set 0,a
     ldh [hTableFlags], a
     ret

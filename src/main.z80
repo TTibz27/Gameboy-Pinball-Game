@@ -2,8 +2,9 @@ INCLUDE "hardware.inc"
 INCLUDE "src/memory/hram.z80"
 INCLUDE "src/memory/wram.z80"
 INCLUDE "src/memory/vector_labels.z80"
-INCLUDE "gfx/table.z80"
+INCLUDE "gfx/table_prototype.z80"
 INCLUDE "gfx/pinball_tiles.z80"
+
 
 
 SECTION "Header", ROM0[$100]
@@ -65,6 +66,10 @@ Start:
     ldh [hPinballFlags], a
     ldh [hPinballForceX], a
     ldh [hPinballForceY], a
+    ldh [hTableFlags], a
+
+    inc a
+    ldh [hPinballAnimationTimer],a
 
 
     ; Set Stack pointer to low ram

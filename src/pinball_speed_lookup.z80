@@ -1,0 +1,4 @@
+ SECTION "PinballSpeedToMask", ROM0[$1900]
+
+pinballSpeedMaskLookup::
+ DB $00,$02,$22,$22,$2A,$2A,$AA,$AA,$AE,$AE,$EE,$EE,$FE,$FE,$FF,$FF 
