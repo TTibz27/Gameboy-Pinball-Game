@@ -1,20 +1,25 @@
 INCLUDE "hardware.inc"
 
-SECTION "memcpy", ROM0
-    ;Memory Functions should go in this section.
-memcpy::
-    ; DE = block size
-    ; BC = source address
-    ; HL = destination address
-    ; dec DE
+ ;Memory Functions should go in this section.
+ ;If any of these are ununsed, they should be commented out to save space.
 
+SECTION "memoryFunctions", ROM0  
+;-------------------------------------
+; memcopy( *DE, *BC, *HL) - Copies size DE from address BC to address HL
+;  Destroys DE, BC, HL, AF
+;  DE = block size
+;  BC = source address
+;  HL = destination address
+;  dec DE
+; ------------------------------------
+memcpy::  
 .memcpy_loop:
     ld A, [BC]
     ld [HL], A
     inc BC
     inc HL
     dec DE
-
+  
 .memcpy_check_limit:
     ld A, E
     cp $00
@@ -24,10 +29,15 @@ memcpy::
     jr nz, .memcpy_loop
     ret
 
-memfill:: ;; this will fill a  block of memory with the same bytes repeating
-    ;  B = value to fill
-    ; DE = Block size
-    ; HL = destination address
+;-----------------------------
+;MemFill(B, *DE, *HL) - Fills size of DE at address HL with value of B
+;Destroys DE, HL, AF 
+; B = value to fill
+; DE = Block size
+; HL = destination address
+;-----------------------------
+memfill:: 
+    
 .memfill_loop:
     ld [HL], B
     inc HL
@@ -40,17 +50,21 @@ memfill:: ;; this will fill a  block of memory with the same bytes repeating
     ld A, D
     cp $00
     jr nz, .memfill_loop
-    ret
-    
+    ret  
 
 
 
 SECTION "OAM DMA routine", ROM0
+;-----------------------------
+;CopyDMARoutine() - Moves defined DMARoutine Function to hOAMDMA location in memory, i.e. from ROM to HRAM area 
+;Destroys HL, BC, AF
+;Note that this does not run DMA, it only initializes the DMA routine. To run DMACopy, call hOAMDMA 
+;-----------------------------
 CopyDMARoutine::
-  ld  hl, DMARoutine
+  ld  hl, DMARoutine ;; set location of DMA routine to hl
   ld  b, DMARoutineEnd - DMARoutine ; Number of bytes to copy
   ld  c, LOW(hOAMDMA) ; Low byte of the destination address
-.copy
+.copy ; moves DMARoutine to hOAMDMA in HRAM
   ld  a, [hli]
   ldh [c], a
   inc c
@@ -58,18 +72,22 @@ CopyDMARoutine::
   jr  nz, .copy
   ret
 
+;This Code should never be called from this location in ROM. it exists to be copied to HRAM
 DMARoutine:
-  ldh [rDMA], a
-  
-  ld  a, 40
+  ldh [rDMA], a ;;writing to this register will start the dma tranfser
+  ld  a, 40  ;set the value to wait for
 .wait
-  dec a
-  jr  nz, .wait
-  ret
+  dec a   ; 1 cycle
+  jr  nz, .wait ;3 cycles
+  ret ; after 40 times (40 * 4 cycles = 160 cycles) return
 DMARoutineEnd:
 
-
+;; This defines a section in HRAM to store the OAM DMA transfer function
 SECTION "OAM DMA", HRAM
-
+;-----------------------------
+;hOAMDMA(a) - DMA Transfer from "XX00 -XX9F" to "FE00 -FE9F", where XX is value of A register 
+;Destroys AF
+;Takes 160 Cycles
+;-----------------------------
 hOAMDMA::
   ds DMARoutineEnd - DMARoutine ; Reserve space in HRAM to copy the routine to
